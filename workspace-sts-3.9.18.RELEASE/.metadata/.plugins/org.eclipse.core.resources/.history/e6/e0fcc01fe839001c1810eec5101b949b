@@ -1,0 +1,6 @@
+package location;
+
+@RestController
+public class LocationController {
+
+}
