@@ -1,0 +1,127 @@
+1-sudo docker pull mysql/mysql-server:latest
+2-docker images
+3-Deploy the MySQL Container
+	docker run --name=[container_name] -d [image_tag_name]
+	ex: docker run --name=[container_name] -d mysql/mysql-server:latest
+docker run --name mysql_new -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=testdb -e MYSQL_USER=admin -e MYSQL_PASSWORD=root -d mysql/mysql-server:latest
+host: localhost
+port: 3306
+user: admin
+password: root
+4-docker ps
+5-Step 3: Connect to the MySQL Docker Container
+
+apt-get install mysql-client
+6-2. Then, open the logs file for the MySQL container to find the generated root password:
+
+
+sudo docker logs [container_name]
+sudo docker logs mysql_docker
+
+4. Next, go to the bash shell of the MySQL container by typing:
+
+
+sudo docker exec -it [container_name] bash
+
+sudo docker -it mysql_docker bash
+
+. Finally, change the server root password to protect your information:
+mysql -uroot -p
+
+ 
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '[newpassword]';
+
+
+update mysql.user set host = '%' where user='root';
+docker restart mysql_docker
+
+
+
+
+Configure MySQL Container
+When you install a MySQL container, you will find its configuration options in the /etc/mysql/my.cnf= directory.
+
+If you need to modify the configuration, create an alternative config file on the host machine and mount them inside the container.
+
+1. First, create a new directory on the host machine:
+
+sudo mkdir -p /root/docker/[container_name]/conf.d
+2. Create a custom MySQL config file inside that directory:
+
+sudo nano /root/docker/[container_name]/conf.d/my-custom.cnf
+3. Once in the file, you can add lines with the desired configuration.
+
+For example, if you want to increase the maximum number of connections to 250 (instead of the default 151), add the following lines to the configuration file:
+
+[mysqld]
+max_connections=250
+
+4. Save and exit the file.
+
+5. For the changes to take place, you need to remove and rerun the MySQL container. This time, the container uses a combination of configuration settings from the newly created file and the default config files.
+
+To do this, run the container and map the volume path with the command:
+
+docker run \
+--detach \
+--name=[container_name] \
+--env="MYSQL_ROOT_PASSWORD=[my_password]" \
+--publish 6603:3306 \
+--volume=/root/docker/[container_name]/conf.d:/etc/mysql/conf.d \
+mysql
+6. To check whether the container loaded the configuration from the host, run the following command:
+
+mysql -uroot -pmypassword -h127.0.0.1 -P6603 -e 'show global variables like "max_connections"';
+You should see that the maximum number of connections is now 250.
+
+Manage Data Storage
+By default, Docker stores data in its internal volume.
+
+To check the location of the volumes, use the command:
+
+sudo docker inspect [container_name]
+You will see the /var/lib/mysql mounted in the internal volume.
+
+List details of MySQL Docker container and data storage location.
+You can also change the location of the data directory and create one on the host. Having a volume outside the container allows other applications and tools to access the volumes when needed.
+
+1. First, find an appropriate volume on the host and create a data directory on it:
+
+sudo mkdir -p /storage/docker/mysql-data
+2. Now start the container again, mounting the previously made directory:
+
+docker run \
+--detach \
+--name=[container_name] \
+--env="MYSQL_ROOT_PASSWORD=my_password" \
+--publish 6603:3306 \
+--volume=/root/docker/[container_name]/conf.d:/etc/mysql/conf.d \
+--volume=/storage/docker/mysql-data:/var/lib/mysql \
+mysql
+If you inspect the container, you should see that the MySQL container now stores its data on the host system. Run the command:
+
+sudo docker inspect [container_name]
+Start, Stop, and Restart MySQL Container
+The container automatically stops when the process running in it stops.
+
+To start the MySQL container run:
+
+sudo docker start [container_name]
+Stop the MySQL container, use the command:
+
+sudo docker stop [container_name]
+To restart the MySQL container run:
+
+sudo docker restart [container_name]
+Delete MySQL Container
+Before deleting a MySQL container, make sure you stop it first.
+
+Then, remove the docker container with:
+
+sudo docker rm [container_name]
+example of stopping and deleting a MySQL container
+Conclusion
+
+After reading this article, you should have successfully deployed a MySQL container.
+
+Combining Docker and MySQL can be an excellent solution for a small-scale application. Now you can start exploring all the possibilities of a MySQL container.
