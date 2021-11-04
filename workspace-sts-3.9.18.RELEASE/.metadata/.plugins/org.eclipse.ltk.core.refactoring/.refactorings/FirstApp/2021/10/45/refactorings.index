@@ -1,3 +1,11 @@
 1635640337116	Move compilation unit
 1635640345747	Move compilation unit
 1635640352823	Move compilation unit
+1635645302922	Rename type 'HomeController'
+1635646440612	Rename package 'location'
+1635646449790	Rename package 'post'
+1635646460511	Rename package 'user'
+1635646631360	Rename package 'com.algonquin.user'
+1635646682553	Rename package 'com.algonquin.post'
+1635646694502	Rename package 'com.algonquin.location'
+1635657979913	Move file
